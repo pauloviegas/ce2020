@@ -45,7 +45,8 @@ def restrictive(max_value):
 
 # Generate the capacity of the bag based of the average of the items
 def average(items):
-    capacity = 0.5 * np.mean(items, axis=0)[0]
+    # capacity = np.mean(items, axis=0)[0]
+    capacity = 0.5 * sum(item[0] for item in items)
     return round(capacity)
 
 
@@ -96,7 +97,7 @@ def main(qnt_items, max_value, r):
     # Case 05
     items = weakly_correlated(qnt_items, max_value)
     capacity = average(items)
-    save_data('averag_weakly_correlatede', items, capacity)
+    save_data('average_weakly_correlatede', items, capacity)
     # Case 06
     items = strong_correlated(qnt_items, max_value, r)
     capacity = average(items)
