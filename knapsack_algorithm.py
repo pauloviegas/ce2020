@@ -2,6 +2,7 @@
 # python -c "from knapsack_algorithm import main; main('average_uncorrelated', 100, 2, 0.2,  0.2, 1)"
 # Imports
 import random
+from operator import itemgetter
 from itemgenerate import read_file
 
 
@@ -9,8 +10,9 @@ def generate_population(items, capacity, pop_size):
     population = []
     for i in range(pop_size):
         individual = generate_individual(items, capacity)
-        population.append([individual, fitness(individual, capacity)])
-    population.sort(key=lambda x: x[1], reverse=True)
+    individual.sort(key=itemgetter(1), reverse=True)
+    #population.append([individual, fitness(individual, capacity)])
+    population.append([individual, fitness(individual, capacity)])
     return population
 
 
@@ -19,11 +21,12 @@ def generate_individual(items, capacity):
     individual = []
     total_weight = 0
 
-    while total_weight < capacity * 0.9 and total_weight < capacity * 1.1:
+    while total_weight < capacity:
         allele = random.choice(items)
         if allele not in individual:
             total_weight += allele[0]
             individual.append(allele)
+    print(individual)
     return individual
 
 
@@ -90,20 +93,34 @@ def save_fitness(file_name, population, generation, execution):
     # print(best_fitness)
     # print(fitness_average)
     with open("results/" + file_name + "_run_" + str(execution + 1) + ".txt", "a") as file:
-        file.write(str(generation+1) + ', ' + str(best_fitness) + ', ' + str(fitness_average) + '\n')
+        file.write(str(generation + 1) + ', ' + str(best_fitness) + ', ' + str(fitness_average) + '\n')
 
 
 # Main function
-def main(file_name, pop_size, max_generation, mutation_rate, crossover_rate, executions):
+def main(file_name, pop_size, max_generation, mutation_rate, crossover_rate, executions, mode):
     items, capacity = read_file(file_name)
-    for execution in range(0, executions):
-        population = generate_population(items, capacity, pop_size)
-        for generation in range(0, max_generation):
-            save_fitness(file_name, population, generation, execution)
-            new_population = evolve_population(population, mutation_rate, crossover_rate, items, capacity)
-            population = selection(population, new_population, pop_size)
+    if mode == 1:
+        for execution in range(0, executions):
+            population = generate_population(items, capacity, pop_size)
 
-
+            for generation in range(0, max_generation):
+                save_fitness(file_name, population, generation, execution)
+                new_population = evolve_population(population, mutation_rate, crossover_rate, items, capacity)
+                population = selection(population, new_population, pop_size)
+    elif mode == 2:
+        for execution in range(0, executions):
+            population = generate_population(items, capacity, pop_size)
+            for generation in range(0, max_generation):
+                save_fitness(file_name, population, generation, execution)
+                new_population = evolve_population(population, mutation_rate, crossover_rate, items, capacity)
+                population = selection(population, new_population, pop_size)
+    elif mode == 3:
+        for execution in range(0, executions):
+            population = generate_population(items, capacity, pop_size)
+            for generation in range(0, max_generation):
+                save_fitness(file_name, population, generation, execution)
+                new_population = evolve_population(population, mutation_rate, crossover_rate, items, capacity)
+                population = selection(population, new_population, pop_size)
 
 
 def test():
