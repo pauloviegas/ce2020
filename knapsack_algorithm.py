@@ -97,30 +97,14 @@ def save_fitness(file_name, population, generation, execution):
 
 
 # Main function
-def main(file_name, pop_size, max_generation, mutation_rate, crossover_rate, executions, mode):
+def main(file_name, pop_size, max_generation, mutation_rate, crossover_rate, executions):
     items, capacity = read_file(file_name)
-    if mode == 1:
-        for execution in range(0, executions):
-            population = generate_population(items, capacity, pop_size)
-
-            for generation in range(0, max_generation):
-                save_fitness(file_name, population, generation, execution)
-                new_population = evolve_population(population, mutation_rate, crossover_rate, items, capacity)
-                population = selection(population, new_population, pop_size)
-    elif mode == 2:
-        for execution in range(0, executions):
-            population = generate_population(items, capacity, pop_size)
-            for generation in range(0, max_generation):
-                save_fitness(file_name, population, generation, execution)
-                new_population = evolve_population(population, mutation_rate, crossover_rate, items, capacity)
-                population = selection(population, new_population, pop_size)
-    elif mode == 3:
-        for execution in range(0, executions):
-            population = generate_population(items, capacity, pop_size)
-            for generation in range(0, max_generation):
-                save_fitness(file_name, population, generation, execution)
-                new_population = evolve_population(population, mutation_rate, crossover_rate, items, capacity)
-                population = selection(population, new_population, pop_size)
+    for execution in range(0, executions):
+        population = generate_population(items, capacity, pop_size)
+        for generation in range(0, max_generation):
+            save_fitness(file_name, population, generation, execution)
+            new_population = evolve_population(population, mutation_rate, crossover_rate, items, capacity)
+            population = selection(population, new_population, pop_size)
 
 
 def test():
