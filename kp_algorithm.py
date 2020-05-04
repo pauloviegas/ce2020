@@ -17,15 +17,15 @@ def generate_population(items, capacity, pop_size, number_items):
     return population
 
 
-def generate_individual(items, capacity, number_items, dict_ind, pop_list):
+def generate_individual(items, capacity, number_items, dict_ind, population):
     alleles = []
     for x in range(number_items):
         insert_allele(items, alleles, dict_ind)
     dict_ind.update({'fitness': fitness(dict_ind.get('weight'), dict_ind.get('value'), capacity)})
     dict_ind.update({'alleles': alleles})
-    pop_list.append(dict_ind.copy())
+    population.append(dict_ind.copy())
 
-    return pop_list
+    return population
 
 
 def insert_allele(items, allele_list, dict_ind):
@@ -52,13 +52,13 @@ def save_fitness(file_name, population, generation, execution, mod):
         file.write(str(generation + 1) + ', ' + str(best_fitness) + ', ' + str(fitness_average) + '\n')
 
 
-def mutation(individual, capacity, mutation_rate):
+def mutation(individual, capacity, mutation_rate, mod):
     new_individual = individual.copy()
     new_individual.update({'weight': 0})
     new_individual.update({'value': 0})
     new_alleles = []
     for allele in individual.get('alleles'):
-        if mutation_rate > random.random():
+        if mutation_rate > random.random() or mod == 3:
             new_allele = (allele[0] * random.uniform(0.8, 1.2), allele[1] * random.uniform(0.8, 1.2))
         else:
             new_allele = allele
@@ -108,18 +108,21 @@ def crossover(individual, population, capacity):
     return child1, child2
 
 
-def selection(old_population, new_population, pop_size, items, capacity, number_items, mod, immigrant_percentage):
+def selection(old_population, new_population, pop_size, items, capacity, number_items, mod, immigrant_percentage,
+              mutation_rate):
     total_population = old_population + new_population
     total_population = sorted(total_population, key=itemgetter('fitness'), reverse=True)
     total_population = total_population[0: pop_size]
     if mod == 2:
         immigrant_insertion(items, capacity, number_items, total_population, immigrant_percentage)
+    if mod == 3:
+        mutation_mod(capacity, mutation_rate, total_population, immigrant_percentage,mod)
+    total_population = sorted(total_population, key=itemgetter('fitness'), reverse=True)
     return total_population
 
 
-def immigrant_insertion(items, capacity, number_items, pop_list, immigrant_percentage):
-    start = int(len(pop_list) - (len(pop_list) * immigrant_percentage))
-    for individual in islice(pop_list, start, None, None):
+def immigrant_insertion(items, capacity, number_items, population, immigrant_percentage):
+    for individual in islice(population, int(len(population) - (len(population) * immigrant_percentage)), None, None):
         alleles = []
         for x in range(number_items):
             insert_allele(items, alleles, individual)
@@ -127,11 +130,20 @@ def immigrant_insertion(items, capacity, number_items, pop_list, immigrant_perce
         individual.update({'alleles': alleles})
 
 
-def evolve_population(population, mutation_rate, crossover_rate, capacity):
+def mutation_mod(capacity, mutation_rate, population, immigrant_percentage, mod):
+    for individual in islice(population, int(len(population) - (len(population) * immigrant_percentage)), None, None):
+        mutant_individual = mutation(population[0], capacity, mutation_rate, mod)
+        individual.update({'weight': mutant_individual.get('weight')})
+        individual.update({'value': mutant_individual.get('value')})
+        individual.update({'fitness': fitness(mutant_individual.get('weight'), mutant_individual.get('value'), capacity)})
+        individual.update({'alleles': mutant_individual.get('alleles')})
+
+
+def evolve_population(population, mutation_rate, crossover_rate, capacity, mod):
     new_population = []
     index = 1
     for ind in population:
-        individual = mutation(ind, capacity, mutation_rate)
+        individual = mutation(ind, capacity, mutation_rate, mod)
         individual.update({'id': index})
         index += 1
         new_population.append(individual)
@@ -147,7 +159,8 @@ def evolve_population(population, mutation_rate, crossover_rate, capacity):
 
 
 # Main function
-def main(file_name, pop_size, num_items, max_generation, mutation_rate, crossover_rate, executions, mod, immigrant):
+def main(file_name, pop_size, num_items, max_generation, mutation_rate, crossover_rate, executions, mod,
+         immigrant_percentage):
     items, capacity = read_file(file_name)
     for execution in range(executions):
         population = generate_population(items, capacity, pop_size, num_items)
@@ -155,9 +168,9 @@ def main(file_name, pop_size, num_items, max_generation, mutation_rate, crossove
         stat_avg = []
         for generation in range(max_generation):
             save_fitness(file_name, population, generation, execution, mod)
-            new_population = evolve_population(population, mutation_rate, crossover_rate, capacity)
-            population = selection(population, new_population, pop_size, items, capacity, num_items, mod, immigrant)
-            save_fitness(file_name, population, generation, execution, mod)
+            new_population = evolve_population(population, mutation_rate, crossover_rate, capacity, mod)
+            population = selection(population, new_population, pop_size, items, capacity, num_items, mod,
+                                   immigrant_percentage, mutation_rate)
             stat.append(population[0]['fitness'])
             stat_avg.append(sum(individual['fitness'] for individual in population) / len(population))
         display(stat, stat_avg, execution)
@@ -165,4 +178,4 @@ def main(file_name, pop_size, num_items, max_generation, mutation_rate, crossove
 
 # main(file_name, pop_size, num_items, max_generation, mutation_rate, crossover_rate, executions, mod, immigrants):
 
-main('average_uncorrelated', 100, 10, 100, 0.1, 0.7, 5, 2, 0.3)
+main('average_uncorrelated', 100, 10, 100, 0.1, 0.7, 5, 3, 0.3)
