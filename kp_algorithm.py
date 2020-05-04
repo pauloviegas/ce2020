@@ -1,6 +1,6 @@
 import random
-import matplotlib.pyplot as plt
 
+from itertools import islice
 from operator import itemgetter
 from itemgenerate import read_file
 from utils import display
@@ -118,18 +118,13 @@ def selection(old_population, new_population, pop_size, items, capacity, number_
 
 
 def immigrant_insertion(items, capacity, number_items, pop_list, immigrant_percentage):
-    start = len(pop_list) - (len(pop_list) * immigrant_percentage)
-    print(start)
-    print(len(pop_list))
-    # for individual in pop_list[start, len(pop_list)]:
-    #     for x in range(number_items):
-    #         alleles = []
-    #         allele = random.choice(items)
-    #         if allele not in alleles:
-    #             individual.update({'weight': individual.get('weight') + allele[0]})
-    #             individual.update({'value': individual.get('value') + allele[1]})
-    #     individual.update({'fitness': fitness(individual.get('weight'), individual.get('value'), capacity)})
-    #     pop_list.append(individual.copy())
+    start = int(len(pop_list) - (len(pop_list) * immigrant_percentage))
+    for individual in islice(pop_list, start, None, None):
+        alleles = []
+        for x in range(number_items):
+            insert_allele(items, alleles, individual)
+        individual.update({'fitness': fitness(individual.get('weight'), individual.get('value'), capacity)})
+        individual.update({'alleles': alleles})
 
 
 def evolve_population(population, mutation_rate, crossover_rate, capacity):
@@ -162,13 +157,12 @@ def main(file_name, pop_size, num_items, max_generation, mutation_rate, crossove
             save_fitness(file_name, population, generation, execution, mod)
             new_population = evolve_population(population, mutation_rate, crossover_rate, capacity)
             population = selection(population, new_population, pop_size, items, capacity, num_items, mod, immigrant)
-            print(population)
             save_fitness(file_name, population, generation, execution, mod)
             stat.append(population[0]['fitness'])
             stat_avg.append(sum(individual['fitness'] for individual in population) / len(population))
-        # display(stat, stat_avg, execution)
+        display(stat, stat_avg, execution)
 
 
 # main(file_name, pop_size, num_items, max_generation, mutation_rate, crossover_rate, executions, mod, immigrants):
 
-main('average_uncorrelated', 100, 10, 100, 0.1, 0.7, 5, 1, 0.3)
+main('average_uncorrelated', 100, 10, 100, 0.1, 0.7, 5, 2, 0.3)
