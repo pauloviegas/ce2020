@@ -178,4 +178,4 @@ def main(file_name, pop_size, num_items, max_generation, mutation_rate, crossove
 
 # main(file_name, pop_size, num_items, max_generation, mutation_rate, crossover_rate, executions, mod, immigrants):
 
-main('average_uncorrelated', 100, 10, 100, 0.1, 0.7, 5, 3, 0.3)
+main('average_uncorrelated', 100, 10, 300, 0.1, 0.7, 5, 2, 0.3)
