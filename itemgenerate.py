@@ -102,5 +102,3 @@ def main(qnt_items, max_value, r):
     items = strong_correlated(qnt_items, max_value, r)
     capacity = average(items)
     save_data('average_strong_correlated', items, capacity)
-
-main(1000, 100, 5)
