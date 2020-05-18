@@ -222,16 +222,16 @@ def main(file_name, pop_size, max_generation, mutation_rate, crossover_rate, exe
     stat_avg_temp = []
     for execution in range(0, executions):
         print("start execution {}".format(execution))
-        print('... \n ... \n ...')
+        print('... \n ...')
         population = generate_population(items, capacity, pop_size)
         stat = []
         stat_avg = []
         # save_fitness(file_name, population, 1, execution, mod)
         stat.append(population[0]['fitness'])
         stat_avg.append(sum(individual['fitness'] for individual in population) / len(population))
-        print('generation 1')
+        # print('generation 1')
         for generation in range(2, max_generation + 1):
-            print('generation {}'.format(generation))
+            # print('generation {}'.format(generation))
             new_population = evolve_population(population, mutation_rate, crossover_rate, capacity, items)
             population = selection(population, new_population, pop_size, items, capacity, mod,
                                    immigrant_percentage, mutation_rate)
@@ -250,4 +250,4 @@ def main(file_name, pop_size, max_generation, mutation_rate, crossover_rate, exe
 
 # main(file_name, pop_size, max_generation, mutation_rate, crossover_rate, executions, mod, immigrant_percentage):
 
-main('average_uncorrelated', 100, 300, 0.03, 0.3, 10, 1, 0.3)
+main('average_uncorrelated', 200, 500, 0.03, 0.3, 30, 1, 0.3)
